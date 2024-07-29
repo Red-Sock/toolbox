@@ -8,3 +8,15 @@ func IsEmpty[T comparable](val T) bool {
 
 	return false
 }
+
+func Coalesce[T comparable](in ...T) T {
+	var empty T
+
+	for _, v := range in {
+		if v != empty {
+			return v
+		}
+	}
+
+	return empty
+}
