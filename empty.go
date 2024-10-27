@@ -20,3 +20,8 @@ func Coalesce[T comparable](in ...T) T {
 
 	return empty
 }
+
+func DefaultValue[T any]() T {
+	var t T
+	return t
+}
