@@ -1,4 +1,4 @@
-module go.github.ru/toolbox
+module go.redsock.ru/toolbox
 
 go 1.23
 
