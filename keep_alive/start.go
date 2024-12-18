@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	errors "github.com/Red-Sock/trace-errors"
+	"go.redsock.ru/rerrors"
 )
 
 // Start blocks until service become alive for the first time
@@ -67,12 +67,12 @@ func (a *AliveKeeper) startService() error {
 
 	err := a.service.Kill()
 	if err != nil {
-		return errors.Wrap(err,
+		return rerrors.Wrap(err,
 			fmt.Sprintf("error killing service %s", a.service.GetName()))
 	}
 	err = a.service.Start()
 	if err != nil {
-		return errors.Wrap(err,
+		return rerrors.Wrap(err,
 			fmt.Sprintf(`error keeping service %s alive`, a.service.GetName()))
 	}
 
@@ -83,5 +83,5 @@ func (a *AliveKeeper) startService() error {
 		time.Sleep(a.interval)
 	}
 
-	return errors.New("failed healthcheks")
+	return rerrors.New("failed healthcheks")
 }
