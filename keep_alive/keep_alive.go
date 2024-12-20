@@ -17,26 +17,25 @@ type KeepAliveService interface {
 
 type AliveKeeper struct {
 	startOnce sync.Once
+	stopOnce  sync.Once
 
 	log logrus.FieldLogger
-	err error
 
-	cancel <-chan struct{}
+	ticker   *time.Ticker
+	stopChan chan struct{}
 
 	service  KeepAliveService
 	interval time.Duration
 
 	maxFail int
-
-	firstStartWG sync.WaitGroup
 }
 
 type keepAliveOption func(a *AliveKeeper)
 
-func KeepAlive(s KeepAliveService, opts ...keepAliveOption) *AliveKeeper {
+func NewKeepAlive(s KeepAliveService, opts ...keepAliveOption) *AliveKeeper {
 	ak := &AliveKeeper{
 		log:      logrus.New(),
-		cancel:   make(<-chan struct{}),
+		stopChan: make(chan struct{}),
 		service:  s,
 		interval: 5 * time.Second,
 		maxFail:  3,
@@ -45,13 +44,15 @@ func KeepAlive(s KeepAliveService, opts ...keepAliveOption) *AliveKeeper {
 	for _, opt := range opts {
 		opt(ak)
 	}
-
-	ak.firstStartWG.Add(1)
-	ak.start()
+	ak.ticker = time.NewTicker(ak.interval)
 
 	return ak
 }
 
-func (a *AliveKeeper) Wait() {
-	a.firstStartWG.Wait()
+func KeepAlive(s KeepAliveService, opts ...keepAliveOption) *AliveKeeper {
+	ak := NewKeepAlive(s, opts...)
+
+	ak.Start()
+
+	return ak
 }

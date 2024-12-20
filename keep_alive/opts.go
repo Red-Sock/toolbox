@@ -19,6 +19,10 @@ func WithCheckInterval(interval time.Duration) keepAliveOption {
 }
 func WithCancel(c <-chan struct{}) keepAliveOption {
 	return func(a *AliveKeeper) {
-		a.cancel = c
+		go func() {
+			<-c
+			a.Stop()
+			<-a.stopChan
+		}()
 	}
 }
